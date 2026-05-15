@@ -9504,6 +9504,29 @@ function gen3AutoPullOnSignIn() {
     });
 }
 
+// Clear every localStorage key that participates in Drive sync. Used on sign-out so
+// signed-in state doesn't linger on a shared device. Drive copy stays intact.
+function gen3WipeLocalSyncedState() {
+  try {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && typeof gen3ShouldExportLocalStorageKey === 'function' && gen3ShouldExportLocalStorageKey(k)) {
+        keys.push(k);
+      }
+    }
+    keys.push('gen3-last-export-at', 'gen3-last-import-at');
+    keys.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  } catch (e) {}
+  _gen3InitialPullDone = false;
+  _gen3LastUploadHash = null;
+  if (_gen3SyncTimer) { try { clearTimeout(_gen3SyncTimer); } catch (e) {} _gen3SyncTimer = null; }
+  if (typeof gen3RefreshImportedState === 'function') {
+    try { gen3RefreshImportedState(); } catch (e) {}
+  }
+  if (typeof trkStatus === 'function') trkStatus('Signed out. Local copy cleared — your Drive backup is safe.', '');
+}
+
 (function gen3InstallAutoSyncHooks() {
   if (typeof localStorage === 'undefined') return;
   // Monkey-patch setItem so we can react to writes from anywhere in the app.
@@ -9525,14 +9548,16 @@ function gen3AutoPullOnSignIn() {
 
   function whenAuthReady() {
     if (!window.pgAuth) { setTimeout(whenAuthReady, 250); return; }
+    var wasSignedIn = !!window.pgAuth.isSignedIn();
     window.pgAuth.onChange(function(user) {
-      if (user && user.email) {
+      var signedIn = !!(user && user.email);
+      if (signedIn) {
         gen3AutoPullOnSignIn();
-        if (typeof settingsSyncDriveField === 'function') { try { settingsSyncDriveField(); } catch(e) {} }
-      } else {
-        _gen3InitialPullDone = false;
-        if (typeof settingsSyncDriveField === 'function') { try { settingsSyncDriveField(); } catch(e) {} }
+      } else if (wasSignedIn) {
+        gen3WipeLocalSyncedState();
       }
+      if (typeof settingsSyncDriveField === 'function') { try { settingsSyncDriveField(); } catch(e) {} }
+      wasSignedIn = signedIn;
     });
   }
   if (document.readyState === 'loading') {
