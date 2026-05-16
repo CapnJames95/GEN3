@@ -19128,9 +19128,14 @@ function updateBadge(){var b=document.getElementById('notes-tab-badge');if(!b)re
 
 /* ── Panel ── */
 // ══ MAP PANEL ═══════════════════════════════════════════════════
+// Gen 3 regions (mixed sources):
+//   • kanto3 / hoenn → simplyblgdev SPA (overview maps)
+//   • frlg / emerald → locally-bundled React IronMON maps
 var _mapRegionUrls = {
-  kanto3: 'https://simplyblgdev.github.io/pokemon/kanto3',
-  hoenn:  'https://simplyblgdev.github.io/pokemon/hoenn'
+  kanto3:  'https://simplyblgdev.github.io/pokemon/kanto3',
+  hoenn:   'https://simplyblgdev.github.io/pokemon/hoenn',
+  frlg:    './FRLGIronmonMap/index.html',
+  emerald: './EmeraldIronmonMap/index.html'
 };
 
 window.mapSelectRegion = function(region) {
@@ -19171,22 +19176,40 @@ function _panelScrollUnlock() {
   }
 }
 
-window.toggleMapPanel = function() {
+function _gen3DefaultMapRegion() {
+  // FR/LG → frlg sidebar; R/S/E → emerald sidebar. Fallback to kanto3.
+  if (GAME === 'FR' || GAME === 'LG') return 'frlg';
+  if (GAME === 'R' || GAME === 'S' || GAME === 'E') return 'emerald';
+  return 'frlg';
+}
+
+// Optional `region` overrides auto-pick. Re-clicking with the same
+// region toggles the panel closed.
+window.toggleMapPanel = function(region) {
   var panel = document.getElementById('map-panel');
-  if (panel.classList.contains('open')) { closeMapPanel(); return; }
+  region = region || _gen3DefaultMapRegion();
+  var sel = document.getElementById('map-select');
+  var iframe = document.getElementById('map-iframe');
+  var alreadyOpen = panel.classList.contains('open');
+  var currentRegion = sel ? sel.value : null;
+  if (alreadyOpen && currentRegion === region) {
+    closeMapPanel();
+    return;
+  }
   // Close notes if open
   var notesPanel = document.getElementById('notes-panel');
   if (notesPanel && notesPanel.classList.contains('open')) { closeNotesPanel(); }
-  // Auto-select region based on current game
-  var region = (['FR','LG'].indexOf(GAME) !== -1) ? 'kanto3' : 'hoenn';
-  var sel = document.getElementById('map-select');
   if (sel) sel.value = region;
-  var iframe = document.getElementById('map-iframe');
-  var url = _mapRegionUrls[region];
+  var url = _mapRegionUrls[region] || _mapRegionUrls.frlg;
   if (iframe.src !== url) iframe.src = url;
   panel.classList.add('open');
   _panelScrollLock();
   if (typeof iosSetActiveByOptId === 'function') iosSetActiveByOptId('map');
+};
+
+// Public alias for nav menu + home-grid cards.
+window.openSidebarMap = function(region) {
+  window.toggleMapPanel(region);
 };
 window.closeMapPanel = function() {
   document.getElementById('map-panel').classList.remove('open');

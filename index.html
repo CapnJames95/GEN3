@@ -484,8 +484,8 @@
       <div class="page-nav-dropdown-menu" id="navMapsMenu">
         <button class="page-nav-dropdown-item" data-games="FR,LG" id="navKantoMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}">Kanto Map</button>
         <button class="page-nav-dropdown-item" data-games="R,S,E" id="navEmeraldMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}">Emerald Map</button>
-        <button class="page-nav-dropdown-item" data-games="FR,LG" id="navFRLGSidebarMap" onclick="closeNavDropdown('navMapsDropdown');window.open('./FRLGIronmonMap/index.html','_blank')">FRLG Sidebar Map</button>
-        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navEmeraldSidebarMap" onclick="closeNavDropdown('navMapsDropdown');window.open('./EmeraldIronmonMap/index.html','_blank')">Emerald Sidebar Map</button>
+        <button class="page-nav-dropdown-item" data-games="FR,LG" id="navFRLGSidebarMap" onclick="closeNavDropdown('navMapsDropdown');openSidebarMap('frlg')">🗺 Sidebar Map (FRLG)</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navEmeraldSidebarMap" onclick="closeNavDropdown('navMapsDropdown');openSidebarMap('emerald')">🗺 Sidebar Map (Emerald)</button>
         <button class="page-nav-dropdown-item" id="navRouteBrowser" onclick="return openPage('routebrowser','navRouteBrowser','navMapsDropdown')">Route Browser</button>
       </div>
     </div>
@@ -2072,8 +2072,10 @@
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0;gap:10px;">
     <div style="font-family:'Press Start 2P',monospace;font-size:9px;color:#44DD88;letter-spacing:1px;white-space:nowrap;">🗺 MAP</div>
     <select id="map-select" onchange="mapSelectRegion(this.value)" style="flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:5px 8px;font-size:12px;outline:none;cursor:pointer;">
-      <option value="kanto3">Kanto — FireRed / LeafGreen</option>
-      <option value="hoenn">Hoenn — Ruby / Sapphire / Emerald</option>
+      <option value="frlg">FRLG IronMON Map (detailed sidebar)</option>
+      <option value="emerald">Emerald IronMON Map (detailed sidebar)</option>
+      <option value="kanto3">Kanto overview — simplyblgdev</option>
+      <option value="hoenn">Hoenn overview — simplyblgdev</option>
     </select>
     <button onclick="closeMapPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px 4px;flex-shrink:0;">✕</button>
   </div>
